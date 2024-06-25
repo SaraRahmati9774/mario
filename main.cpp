@@ -20,23 +20,22 @@ int main(int argc, char *argv[]) {
     player->setPos(50, 50);
     scene.addItem(player);
 
-    // Add platforms
-    std::vector<QGraphicsRectItem*> platforms = {
-        new QGraphicsRectItem(0, 0, 100, 20),
-        new QGraphicsRectItem(0, 0, 100, 20),
-        new QGraphicsRectItem(0, 0, 100, 20)
-    };
-    platforms[0]->setPos(0, 100);
-    platforms[1]->setPos(150, 150);
-    platforms[2]->setPos(300, 200);
-    for (auto& platform : platforms) {
+    // Add continuous ground platforms
+    int platformWidth = 100;
+    int platformHeight = 20;
+    int platformCount = 10; // Number of platforms
+    int startY = 500;
+
+    for (int i = 0; i < platformCount; ++i) {
+        QGraphicsRectItem* platform = new QGraphicsRectItem(0, 0, platformWidth, platformHeight);
+        platform->setPos(i * platformWidth, startY);
         platform->setBrush(Qt::gray);
         scene.addItem(platform);
     }
 
     view.show();
 
-    qDebug() << "Application started with player and platforms";
+    qDebug() << "Application started with player and continuous ground platforms";
 
     QTimer timer;
     QObject::connect(&timer, &QTimer::timeout, [&]() {
@@ -46,11 +45,11 @@ int main(int argc, char *argv[]) {
 
         // Check collision with platforms
         bool onGround = false;
-        for (auto& platform : platforms) {
-            if (player->collidesWithItem(platform)) {
-                // Player is on the platform
+        QList<QGraphicsItem*> collidingItems = player->collidingItems();
+        for (auto& item : collidingItems) {
+            if (item->type() == QGraphicsRectItem::Type) {
                 onGround = true;
-                posY = platform->y() - player->rect().height();
+                posY = item->y() - player->rect().height();
                 velocityY = 0; // Stop falling
                 break;
             }
