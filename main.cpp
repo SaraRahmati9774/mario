@@ -18,7 +18,7 @@ int main(int argc, char *argv[]) {
     // Add player
     QGraphicsRectItem* player = new QGraphicsRectItem(0, 0, 32, 32);
     player->setBrush(Qt::blue);
-    player->setPos(50, 50);
+    player->setPos(50, 468); // Adjust starting position to be above the platforms
     scene.addItem(player);
 
     // Add continuous ground platforms
@@ -45,7 +45,8 @@ int main(int argc, char *argv[]) {
     QObject::connect(&timer, &QTimer::timeout, [&]() {
         static int velocityY = 0;
         static int posX = 50;
-        static int posY = 50;
+        static int posY = 468; // Adjust starting position to be above the platforms
+        static bool onGround = false;
 
         // Handle left and right movement
         if (keyPressHandler->leftPressed) {
@@ -55,14 +56,13 @@ int main(int argc, char *argv[]) {
             posX += 5;
         }
 
-        // Handle jump
-        if (keyPressHandler->upPressed && velocityY == 0) {
-            velocityY = -15; // Initial jump velocity
-        }
+        // Apply gravity
+        velocityY += 1;
+        posY += velocityY;
 
         // Check collision with platforms
-        bool onGround = false;
         QList<QGraphicsItem*> collidingItems = player->collidingItems();
+        onGround = false;
         for (auto& item : collidingItems) {
             if (item->type() == QGraphicsRectItem::Type) {
                 onGround = true;
@@ -72,9 +72,9 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        // Apply gravity if not on the ground
-        if (!onGround) {
-            velocityY += 1;
+        // Handle jump
+        if (keyPressHandler->upPressed && onGround) {
+            velocityY = -20; // Initial jump velocity
             posY += velocityY;
         }
 
