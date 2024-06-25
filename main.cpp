@@ -4,6 +4,7 @@
 #include <QGraphicsRectItem>
 #include <QTimer>
 #include <QDebug>
+#include "KeyPressHandler.h"
 
 int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
@@ -37,11 +38,27 @@ int main(int argc, char *argv[]) {
 
     qDebug() << "Application started with player and continuous ground platforms";
 
+    KeyPressHandler *keyPressHandler = new KeyPressHandler(&view);
+    view.installEventFilter(keyPressHandler);
+
     QTimer timer;
     QObject::connect(&timer, &QTimer::timeout, [&]() {
         static int velocityY = 0;
         static int posX = 50;
         static int posY = 50;
+
+        // Handle left and right movement
+        if (keyPressHandler->leftPressed) {
+            posX -= 5;
+        }
+        if (keyPressHandler->rightPressed) {
+            posX += 5;
+        }
+
+        // Handle jump
+        if (keyPressHandler->upPressed && velocityY == 0) {
+            velocityY = -15; // Initial jump velocity
+        }
 
         // Check collision with platforms
         bool onGround = false;
@@ -60,9 +77,6 @@ int main(int argc, char *argv[]) {
             velocityY += 1;
             posY += velocityY;
         }
-
-        // Movement
-        posX += 1;
 
         // Update player position
         player->setPos(posX, posY);

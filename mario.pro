@@ -15,6 +15,7 @@ SOURCES += \
 HEADERS += \
     BodyObject.h \
     Game.h \
+    KeyPressHandler.h \
     Platform.h \
     Player.h \
     Position.h \
