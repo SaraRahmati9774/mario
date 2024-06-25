@@ -44,9 +44,23 @@ int main(int argc, char *argv[]) {
         static int posX = 50;
         static int posY = 50;
 
-        // Gravity
-        velocityY += 1;
-        posY += velocityY;
+        // Check collision with platforms
+        bool onGround = false;
+        for (auto& platform : platforms) {
+            if (player->collidesWithItem(platform)) {
+                // Player is on the platform
+                onGround = true;
+                posY = platform->y() - player->rect().height();
+                velocityY = 0; // Stop falling
+                break;
+            }
+        }
+
+        // Apply gravity if not on the ground
+        if (!onGround) {
+            velocityY += 1;
+            posY += velocityY;
+        }
 
         // Movement
         posX += 1;
